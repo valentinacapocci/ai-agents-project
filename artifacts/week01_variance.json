@@ -6,36 +6,72 @@
       "n": 6,
       "distinct": 1,
       "mean_chars": 10,
-      "median_latency_s": 0.167,
-      "min_latency_s": 0.163,
-      "max_latency_s": 0.229
+      "median_latency_s": 0.589,
+      "min_latency_s": 0.577,
+      "max_latency_s": 0.786
     },
     {
       "cell": "closed_short|t10",
       "n": 6,
       "distinct": 1,
       "mean_chars": 10,
-      "median_latency_s": 0.177,
-      "min_latency_s": 0.169,
-      "max_latency_s": 0.215
+      "median_latency_s": 0.711,
+      "min_latency_s": 0.668,
+      "max_latency_s": 0.783
+    },
+    {
+      "cell": "open_short|t00",
+      "n": 6,
+      "distinct": 2,
+      "mean_chars": 207,
+      "median_latency_s": 8.527,
+      "min_latency_s": 8.342,
+      "max_latency_s": 11.116
+    },
+    {
+      "cell": "open_short|t10",
+      "n": 6,
+      "distinct": 5,
+      "mean_chars": 195,
+      "median_latency_s": 7.608,
+      "min_latency_s": 7.106,
+      "max_latency_s": 8.76
     },
     {
       "cell": "open_list|t00",
       "n": 6,
       "distinct": 1,
-      "mean_chars": 241,
-      "median_latency_s": 2.758,
-      "min_latency_s": 2.628,
-      "max_latency_s": 3.062
+      "mean_chars": 242,
+      "median_latency_s": 12.948,
+      "min_latency_s": 10.652,
+      "max_latency_s": 14.362
     },
     {
       "cell": "open_list|t10",
       "n": 6,
       "distinct": 6,
-      "mean_chars": 187,
-      "median_latency_s": 2.57,
-      "min_latency_s": 1.981,
-      "max_latency_s": 2.767
+      "mean_chars": 202,
+      "median_latency_s": 11.571,
+      "min_latency_s": 6.577,
+      "max_latency_s": 13.014
+    },
+    {
+      "cell": "open_reasoning|t00",
+      "n": 6,
+      "distinct": 2,
+      "mean_chars": 944,
+      "median_latency_s": 34.175,
+      "min_latency_s": 27.847,
+      "max_latency_s": 40.96
+    },
+    {
+      "cell": "open_reasoning|t10",
+      "n": 6,
+      "distinct": 6,
+      "mean_chars": 963,
+      "median_latency_s": 25.259,
+      "min_latency_s": 20.605,
+      "max_latency_s": 28.61
     }
   ]
 }

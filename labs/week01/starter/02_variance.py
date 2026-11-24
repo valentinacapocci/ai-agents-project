@@ -91,7 +91,15 @@ def from_live(full: bool) -> list[dict]:
     from openai import OpenAI
     client = OpenAI(base_url=BASE_URL, api_key=API_KEY)
     rows = []
-    for pname, prompt in LIVE_CELLS.items():
+    prompts = LIVE_CELLS
+    if full:
+        reference_cells = json.loads(FIXTURE.read_text(encoding="utf-8"))["cells"]
+        prompts = {
+            name.split("|", 1)[0]: cell["prompt"]
+            for name, cell in reference_cells.items()
+        }
+
+    for pname, prompt in prompts.items():
         for tname, temp in (("t00", 0.0), ("t10", 1.0)):
             texts, lats = [], []
             for _ in range(LIVE_RUNS):
