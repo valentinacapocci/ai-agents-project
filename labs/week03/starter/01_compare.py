@@ -21,6 +21,7 @@ from project.contracts import GoldCase, GoldSet
 from project.fixtures import ReplayClient, load_or_reference
 from project.models import BASE_URL, API_KEY, SMALL
 from project.trace import TraceRecorder, local_conditions, write_json
+from labs.week02.starter.extractor import SYSTEM_ZERO_SHOT, extract
 
 LAB = "week03_routing_and_composition"
 
@@ -51,7 +52,7 @@ def run_monolith(client, model=SMALL.name):
     return metas
 
 
-def run_router(client, model=SMALL.name):
+def run_router(client, model=SMALL.name, *, replay=False):
     """The treatment. Two calls per query, and a policy layer between them."""
     routed_all, metas_c, metas_a = [], [], []
     for q in QUERIES:
@@ -73,12 +74,24 @@ def run_router(client, model=SMALL.name):
                         policy_fired=routed.policy_fired,
                         evidence_ok=routed.evidence_ok)
 
+        outcome = "ok"
         with rec.step("model", f"{model}:respond") as step:
-            answer, meta_a = respond(
-                client, SPECIALISTS[routed.applied_route], q.text, model)
+            if routed.applied_route == "request" and not replay:
+                record, meta_a = extract(client, SYSTEM_ZERO_SHOT, q.text, model)
+                step.detail(valid=record is not None, error=meta_a["error"])
+                if record is None:
+                    answer = meta_a["raw"]
+                    outcome = "error"
+                else:
+                    answer = record.model_dump_json()
+            else:
+                answer, meta_a = respond(
+                    client, SPECIALISTS[routed.applied_route], q.text, model
+                )
+
             step.tokens(meta_a["prompt_tokens"], meta_a["completion_tokens"])
 
-        rec.finish(output=answer, outcome="ok",
+        rec.finish(output=answer, outcome=outcome,
                    applied_route=routed.applied_route,
                    policy_fired=routed.policy_fired)
         routed_all.append(routed)
@@ -104,7 +117,7 @@ def main() -> int:
     client = get_client(args.replay)
 
     mono_metas = run_monolith(client, args.model)
-    routed, metas_c, metas_a = run_router(client, args.model)
+    routed, metas_c, metas_a = run_router(client, args.model, replay=args.replay)
 
     s = score_routes(routed, QUERIES)
     print(report(s, "router"))
@@ -153,6 +166,36 @@ def main() -> int:
     #   understand best.
     #
     #   Skip any case_id already in the file, so this is safe to re-run.
+    data, source = load_or_reference("goldset.json", LAB)
+    gold_set = GoldSet.model_validate(data)
+    print(f"Gold set source: {source}")
+
+    for query in QUERIES:
+        if gold_set.by_id(query.id) is not None:
+            continue
+
+        tags = [query.lang, query.route]
+        behavior = f"Routes the message to {query.route}."
+        if query.ambiguous:
+            tags.append("ambiguous")
+            behavior = (
+                f"Routes the message to {query.route} under the lab's "
+                "convention for ambiguous messages."
+            )
+
+        gold_set.cases.append(
+            GoldCase(
+                case_id=query.id,
+                week_added=3,
+                question=query.text,
+                expected={"route": query.route},
+                expected_behavior=behavior,
+                slice_tags=tags,
+            )
+        )
+
+    write_json("artifacts/goldset.json", gold_set)
+    print(f"Gold set: {len(gold_set.cases)} cases")
 
     # TODO 7. Answer four questions in DECISIONS.md. The comparison is the
     # deliverable, not the two running systems.

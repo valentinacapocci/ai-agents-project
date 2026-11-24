@@ -38,8 +38,10 @@ ROUTE_DEFINITIONS = {
         "missing, or needed."
     ),
     "info": (
-        "The help desk must answer a question by providing information "
-        "about a service, procedure, opening time, or form."
+        "The help desk must answer a question about a commune service, "
+        "procedure, opening time, or form when the sender only needs "
+        "information. If the message also reports a fault that needs "
+        "action, use request."
     ),
     "status": (
         "The help desk must provide an update on something the sender "

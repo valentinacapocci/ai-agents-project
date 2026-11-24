@@ -1,90 +1,72 @@
-"""Block 4, completed. TODO 8. One variant per group.
-
-    python 02_stretch.py --variant model --replay
-    python 02_stretch.py --variant voting --replay
-
-The written answers are at the bottom.
-"""
-
-from __future__ import annotations
+"""Week 3 stretch A: compare both models with one routing policy."""
 
 import argparse
-import collections
-import time
+
+from pydantic import ValidationError
 
 from queries import QUERIES
-from router import apply_policy, classify
+from router import Decision, apply_policy, classify
 from scoring import report, score_routes
 
-from project.models import LARGE, SMALL
-from project.trace import write_json
+from project.fixtures import ReplayClient
+from project.models import API_KEY, BASE_URL, LARGE, SMALL
 
-import importlib.util
-import sys
-from pathlib import Path
-
-_spec = importlib.util.spec_from_file_location(
-    "compare_mod", Path(__file__).with_name("01_compare.py"))
-_cmp = importlib.util.module_from_spec(_spec)
-sys.modules["compare_mod"] = _cmp
-_spec.loader.exec_module(_cmp)
+LAB = "week03_routing_and_composition"
 
 
-# --------------------------------------------------------------------------
-# TODO 8. One variant. Your instructor assigns you one.
-# --------------------------------------------------------------------------
+def replay_decisions(client, model):
+    """Replay the recorded classifier calls at temperature zero."""
+    requests_by_text = {}
+    for entry in client.records.values():
+        request = entry["request"]
+        if (
+            request["model"] == model
+            and request.get("temperature") == 0.0
+            and request.get("response_format", {}).get("type") == "json_schema"
+        ):
+            requests_by_text[request["messages"][-1]["content"]] = request
 
-def variant_model(client) -> None:
-    """Variant A. Same prompt, same queries, same policy. Only the model.
-
-    Run the classifier over the twenty four queries on SMALL and on LARGE,
-    score both, and report per route as counts.
-
-    Report four things per model, not one:
-      * route accuracy, and route accuracy excluding the ambiguous four
-      * how often the evidence span came back verbatim
-      * the minimum and maximum confidence, and how many distinct values
-      * the resident memory, which is in project/models.py
-
-    Predict which model wins before you run it, and write the prediction
-    down. Then read the confidence range carefully. One of the two models
-    tells you something about your threshold from TODO 3a that you cannot
-    unsee.
-    """
-    raise NotImplementedError("TODO 8: variant A, model routing")
+    for query in QUERIES:
+        reply = client.chat.completions.create(**requests_by_text[query.text])
+        try:
+            yield Decision.model_validate_json(reply.choices[0].message.content)
+        except ValidationError:
+            yield None
 
 
-def variant_voting(client, k: int = 3) -> None:
-    """Variant B. Classify k times at temperature 0.7, majority wins.
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--variant", choices=("model",), default="model")
+    parser.add_argument("--replay", action="store_true")
+    args = parser.parse_args()
 
-    Run sequentially rather than in threads. Your endpoint answers one
-    request at a time, so a thread pool buys you nothing here, and finding
-    that out is worth more than the speedup you expected.
-
-    Score the majority result, but the number to report is not the accuracy.
-    It is the set of queries where the k votes disagreed. Print it, and put
-    it next to the list of ambiguous query ids.
-
-    Then ask what that set is worth. Voting costs k times as much for a step
-    that was already the cheap one, so as a way to decide it is a poor buy.
-    As a way to detect something, it may be a very good one.
-    """
-    raise NotImplementedError("TODO 8: variant B, voting")
-
-
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--variant", choices=("model", "voting"), required=True)
-    ap.add_argument("--replay", action="store_true")
-    args = ap.parse_args()
-
-    client = _cmp.get_client(args.replay)
-    if args.variant == "model":
-        variant_model(client)
+    if args.replay:
+        client = ReplayClient.from_lab(LAB)
+        print(f"Course recording: {client.meta['recorded_at']}")
     else:
-        variant_voting(client)
-    return 0
+        from openai import OpenAI
+
+        client = OpenAI(base_url=BASE_URL, api_key=API_KEY)
+        print("Live run with the current router prompt", flush=True)
+
+    for model in (SMALL, LARGE):
+        if args.replay:
+            decisions = replay_decisions(client, model.name)
+        else:
+            decisions = (
+                classify(client, query.text, model.name)[0] for query in QUERIES
+            )
+
+        results = [
+            apply_policy(decision, query.text)
+            for query, decision in zip(QUERIES, decisions, strict=True)
+        ]
+        print(report(score_routes(results, QUERIES), model.name), flush=True)
+        print(
+            f"  resident memory: {model.resident_gb} GB (course measurement)\n",
+            flush=True,
+        )
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

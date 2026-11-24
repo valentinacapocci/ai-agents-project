@@ -1,14 +1,14 @@
 {
   "model": "qwen3:4b-instruct",
-  "router_hits": 17,
+  "router_hits": 21,
   "total": 24,
   "unambiguous": [
-    14,
+    17,
     20
   ],
   "per_route": {
     "request": [
-      3,
+      7,
       7
     ],
     "info": [
@@ -29,17 +29,14 @@
     ]
   },
   "confusion": {
-    "request->info": 2,
-    "request->complaint": 1,
     "other->info": 2,
-    "other->complaint": 1,
-    "request->status": 1
+    "other->complaint": 1
   },
   "policy_fired": {
     "low_confidence": 1
   },
   "evidence_ok": 24,
-  "monolith_tokens": 6634,
-  "router_tokens": 12349,
-  "routing_call_tokens": 7758
+  "monolith_tokens": 6610,
+  "router_tokens": 13062,
+  "routing_call_tokens": 8171
 }
