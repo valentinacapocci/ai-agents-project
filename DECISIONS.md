@@ -84,20 +84,22 @@ I have the models needed for Week 1. I still need to download the optional `qwen
 
 # Week 2: a structured-output extractor, measured
 
+---
+
 ## Week 2
 
-**Run conditions.** model: qwen3:4b-instruct | temperature: 0.0 | prompt version: zero-shot and four-example few-shot | served locally | date: 2026-10-02 | scored on: my own machine
+**Run conditions.** model: `qwen3:4b-instruct` | temperature: 0.0 | prompt version: `week02-zero-shot-v1` and four-example few-shot | served locally | date: 2026-10-02 | scored on: my own machine
 
 ### 1. The output contract
 
 The conventions I chose, and why:
 
-- due_date, when the message states no date: `null`
-- due_date, when the message states only a relative expression: `null`
-- quote, and what "verbatim" means in my scorer: the quote must occur exactly as a substring of the original source text, without translation or paraphrasing
-- what my scorer does with a record that failed validation: it increments the invalid count and records every scored field as a failure
+- due_date, when the message states no date: `null`, because there is no date to extract
+- due_date, when the message states only a relative expression: `null`, because I only extract explicit calendar dates
+- quote, and what "verbatim" means in my scorer: the quote must appear as an exact substring of the source text, with the same casing, punctuation, and whitespace
+- what my scorer does with a record that failed validation: it counts the record as invalid and marks all four fields wrong
 
-This matters because skipping records that failed validation would artificially improve the reported score as the number of invalid model outputs increased.
+Skipping invalid records would leave the hardest cases out of the scores and make the extractor look more accurate than it was.
 
 ### 2. Zero-shot, per field
 
@@ -109,73 +111,56 @@ This matters because skipping records that failed validation would artificially 
 | quote | 9 | 10 |
 | invalid records | 0 | 10 |
 
-My prediction before block 3 was that examples would help most with category boundaries because examples can demonstrate distinctions between labels that may be difficult to express completely in the prompt.
+The live zero-shot run used 2,158 input tokens and 679 output tokens across ten documents. At the small-tier prices dated 2026-08-10, I estimate that 1,000 calls at the same average token counts would cost about €0.10.
+
+My prediction, written before block 3: examples will help most on category because they can show the difference between labels that are easy to confuse from the definitions alone.
 
 ### 3. Few-shot
 
-I selected four examples from the held-out `EXAMPLE_POOL`, rather than from the ten evaluation documents.
+Examples chosen, and the job each one does:
 
 | example | why it is in the block | field it should move |
 |---|---|---|
-| EX-01 | provides an English access example with no explicit due date | category / due_date |
-| EX-02 | provides a French facilities example and demonstrates multilingual extraction | category / urgency |
-| EX-03 | provides a German hardware example with an explicit date | category / due_date |
-| EX-04 | provides an English `other` example with no due date | category / due_date |
+| EX-01 | Shows an English access request with no explicit due date | category / due_date |
+| EX-02 | Shows how to label a French facilities request and its urgency | category / urgency |
+| EX-03 | Shows a German hardware request with an explicit date | category / due_date |
+| EX-04 | Shows an English request that belongs in `other` and has no due date | category / due_date |
 
 | field | zero-shot | few-shot | move |
 |---|---:|---:|---:|
-| category | 7/10 | 7/10 | +0 |
+| category | 7/10 | 7/10 | 0 |
 | urgency | 9/10 | 10/10 | +1 |
 | due_date | 9/10 | 8/10 | -1 |
 | quote | 9/10 | 10/10 | +1 |
 
 ### 4. What got worse
 
-The `due_date` field got worse, decreasing from 9/10 to 8/10. In the few-shot run, the model invented dates for REQ-05 and REQ-10 even though those messages did not contain explicit calendar dates.
+The `due_date` score went from 9/10 to 8/10. The few-shot prompt fixed the date error in REQ-01, then introduced two new errors. It returned calendar dates for REQ-05 and REQ-10 even though neither message gave an explicit date. Both should have returned `null`.
 
-The category score did not improve. In the few-shot failure output, REQ-04 was classified as `access` instead of `facilities`, REQ-08 as `access` instead of `hardware`, and REQ-09 as `facilities` instead of `other`. Looking at the individual failures therefore shows that the examples did not solve the category-boundary problem even though other fields improved.
+The few-shot prompt fixed the quote in REQ-06 and the urgency label in REQ-09. I expected the examples to help most with category, but the same three category errors remained in REQ-04, REQ-08, and REQ-09.
 
 ### 5. What the examples cost
 
 - extra input tokens per call: 391
-- per thousand calls: 391,000
-- estimated euros per thousand calls on the small tier: approximately €0.08, against the price list dated 2026-08-10. Estimate, not a measurement.
-
-The additional cost is calculated from the small-tier input price of €0.20 per million tokens. Running locally, the actual monetary cost was zero.
+- per thousand calls: 391,000 extra input tokens
+- estimated euros per thousand calls on the small tier: €0.08 for the extra input tokens, against the price list dated 2026-08-10. Estimate, not a measurement.
 
 ### 6. Ship it or not
 
-I would not ship the few-shot variant yet. It improved urgency from 9/10 to 10/10 and quote from 9/10 to 10/10, but category remained unchanged at 7/10 and due_date became worse, falling from 9/10 to 8/10. It also adds 391 input tokens to every call.
-
-Ten evaluation records are not enough to establish that the few-shot variant is consistently better. I would reconsider this decision if a larger evaluation set showed consistent improvements without introducing additional due-date errors.
+I would keep zero-shot for now. The four examples fixed one urgency label and one quote, but they left the category errors in place, added a net date error, and cost 391 extra input tokens per call. With only ten records, I would try both prompts on more requests and switch if few-shot kept its gains without inventing more dates.
 
 ### Sensitivity variant
 
-Variant assigned: `role`.
-
-I prepended `You are a senior service desk analyst.` to the few-shot baseline prompt and changed nothing else.
-
-| field | baseline | role | move |
-|---|---:|---:|---:|
-| category | 7/10 | 7/10 | +0 |
-| urgency | 10/10 | 10/10 | +0 |
-| due_date | 8/10 | 9/10 | +1 |
-| quote | 10/10 | 10/10 | +0 |
-
-The role variant improved the `due_date` field by one case, from 8/10 to 9/10. Category, urgency, and quote did not change.
-
-For the English documents, both variants had 3 field errors. French improved from 2 field errors to 1, while German remained at 0. With only ten documents in total, these results are not enough to conclude that adding the role instruction consistently improves performance.
-
-The experiment shows that even a small prompt change can alter measured behaviour, which is why prompt changes should be measured rather than assumed to be improvements.
+Variant assigned: `role`. What I changed: I prepended `You are a senior service desk analyst.` to the few-shot prompt. What moved: in the saved sensitivity summary, `due_date` went from 8/10 to 9/10. Category stayed at 7/10, and urgency and quote both stayed at 10/10.
 
 ### The gold set
 
-Ten cases were written to `artifacts/goldset.json`, tagged by language.
+Ten cases written to `artifacts/goldset.json`, tagged by language.
 
 One thing my scorer cannot currently detect:
 
-The quote scorer only checks whether the generated quote is an exact substring of the source document. It cannot determine whether that substring actually provides appropriate evidence for the predicted urgency.
+The scorer can check that a quote appears verbatim in the message. It cannot tell whether that quote actually supports the urgency label.
 
 ### Deferred
 
-A larger evaluation set would be needed to determine whether the observed few-shot and sensitivity differences generalize beyond these ten documents.
+Nothing deferred.
