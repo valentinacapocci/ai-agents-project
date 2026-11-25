@@ -155,6 +155,8 @@ I would keep zero-shot for now. The four examples fixed one urgency label and on
 
 Variant assigned: `role`. What I changed: I prepended `You are a senior service desk analyst.` to the few-shot prompt. What moved: in the saved sensitivity summary, `due_date` went from 8/10 to 9/10. Category stayed at 7/10, and urgency and quote both stayed at 10/10.
 
+The role prompt fixed REQ-05 by returning `null`. REQ-10 still returned `2024-12-31` for “before the end of the month,” which should also be `null` under my explicit-date convention.
+
 ### The gold set
 
 Ten cases written to `artifacts/goldset.json`, tagged by language.
@@ -244,6 +246,17 @@ One thing a specialist can be forbidden to do that the monolith cannot be given:
 
 The `status` specialist can be told never to create a new request because it only handles follow-ups. The monolith would need to make that instruction conditional because it also handles new requests. In the revised live run, all seven messages sent to `request` produced a `ServiceRequest` that passed validation.
 
+I manually compared the revised monolith and router outputs in `artifacts/traces.jsonl` for the four queries that moved to `request`. For each case I checked whether the output identifies the action requested, preserves the facts needed to act, and avoids claiming work was done without evidence in the trace. For a resident-facing response, I also checked whether it gives a concrete next step or answers the question asked.
+
+| Case | Monolith reply | Revised router output |
+|---|---|---|
+| Q-04 · shared mailbox | Identifies the correct mailbox, then claims the request was logged and gives an unverified processing estimate. | Produces an access record, but the quote explains the situation without naming the mailbox or the access action. The reviewer would need the original message. |
+| Q-05 · new colleague | Identifies account creation and shared-folder access, then claims the request was registered and promises both actions. | Produces an access record whose quote preserves both actions. The quote leaves out the colleague’s Monday start, and the output gives no resident-facing next step. |
+| Q-06 · portal login and confirmation letter | Identifies both issues and gives a concrete next step for the letter. The trace does not support its claim that the issue is being logged or its statement about what the help desk can issue. | Correctly marks the request urgent and preserves the login issue and appointment context. It invents `2023-10-27` from a relative deadline and gives no next step for the letter. |
+| Q-24 · broken lift | Names the maintenance team as responsible, but the trace provides no source for that answer or evidence that the incident was logged or would be followed up. | Produces a facilities record whose quote preserves both the fault and the question about who arranges repairs. The record leaves that question unanswered. |
+
+Across these four cases, the router produced four validated records and made zero claims that work had already been done. Two records, Q-05 and Q-24, captured the requested actions in their quotes without introducing an incorrect field. Q-05 still omitted the start date from its quote. Neither system produced a complete, supported resident-facing reply on these four cases. This review covers the cases used to tune routing, so it does not estimate how the systems compare on new messages.
+
 Would I ship the router: Not yet. The revised router sent 21 of 24 messages to the right specialist, and all seven messages sent to `request` produced a record that passed validation. Across the same 24 messages, the router used 6,452 more tokens and took about 2.4 times as long as the monolith. Before shipping, I would test on new messages and compare the replies to see whether the specialist responses justify the extra time and tokens.
 
 ### 6. Stretch variant
@@ -285,7 +298,7 @@ Nothing deferred.
 ### 2. The three caps
 
 | cap | value | why that value |
-|---|---:|---|
+|---|---|---|
 | steps | 6 model calls | Leaves room for a search, a refined search or calculation, and a final answer, with a fixed limit on the loop. |
 | budget | 6,000 input and output tokens combined per task | Stops the loop if repeated calls build up too much context. The budget is checked after each model call, so the final call can take the total over 6,000. |
 | no progress | 2 consecutive tool rounds | Gives the agent one chance to try again after an unhelpful round. Two rounds without anything new stop the run. |
@@ -331,6 +344,8 @@ With tools, T-02, T-03, and T-06 changed from fail to pass, and T-04 changed fro
 On T-10, the live `qwen2.5:7b` run answered: “The annual dog registration fee in Remerbaach is 24.00 EUR.” The handbook gives no dog registration fee. It lists €24.00 as the annual administrative fee for waste collection.
 
 The scorer looks for phrases to flag refusals without a search. T-04 failed without using tools on both models, but that check did not flag it in either live run. On T-06, the scorer gave `qwen2.5:7b` a pass because the answer contained `150`. The model called €150 a minimum and left the actual price open, even though €150 was the expected total.
+
+T-08 asked for a German translation of “The office is closed on Saturday afternoon.” The no-tool baseline said “am späten Samstagabend” (late Saturday evening), and the `qwen2.5:7b` tool run said “am späten Samstag” (late on Saturday). Both passed because the scorer checked for closure and Saturday without requiring “afternoon.” The zero-tool-call finding still holds. The 2/10 to 4/10 gain describes automated passes, and these false passes limit what it says about answer quality.
 
 ### 6. Blast radius
 

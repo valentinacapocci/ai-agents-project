@@ -58,15 +58,21 @@ def count_distinct(texts: list[str]) -> int:
     return len(set(texts))
 
 
-def summarize(cell_name: str, texts: list[str], latencies: list[float]) -> dict:
+def summarize(cell_name: str, texts: list[str], latencies: list[float],
+              *, strip_whitespace: bool = False) -> dict:
+    compared_texts = [text.strip() for text in texts] if strip_whitespace else texts
     return {
         "cell": cell_name,
         "n": len(texts),
-        "distinct": count_distinct(texts),
-        "mean_chars": int(statistics.mean(len(t) for t in texts)),
+        "distinct": count_distinct(compared_texts),
+        "mean_chars": int(statistics.mean(len(text) for text in compared_texts)),
         "median_latency_s": round(statistics.median(latencies), 3),
         "min_latency_s": round(min(latencies), 3),
         "max_latency_s": round(max(latencies), 3),
+        "runs": [
+            {"text": text, "latency_s": latency}
+            for text, latency in zip(texts, latencies, strict=True)
+        ],
     }
 
 
@@ -108,8 +114,9 @@ def from_live(full: bool) -> list[dict]:
                     model=SMALL.name, temperature=temp, max_tokens=200,
                     messages=[{"role": "user", "content": prompt}])
                 lats.append(time.perf_counter() - t0)
-                texts.append(reply.choices[0].message.content.strip())
-            rows.append(summarize(f"{pname}|{tname}", texts, lats))
+                texts.append(reply.choices[0].message.content)
+            rows.append(summarize(f"{pname}|{tname}", texts, lats,
+                                  strip_whitespace=True))
     return rows
 
 
