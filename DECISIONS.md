@@ -115,7 +115,7 @@ The table shows the live zero-shot run saved in `artifacts/week02_comparison.jso
 
 The live zero-shot run used 2,158 input tokens and 679 output tokens across ten documents. At the small-tier prices dated 2026-08-10, I estimate that 1,000 calls at the same average token counts would cost about €0.10.
 
-My prediction, written before block 3: examples will help most on category because they can show the difference between labels that are easy to confuse from the definitions alone.
+Before running block 3, I expected examples to help most with category because they can show the difference between labels that are easy to confuse from the definitions alone.
 
 ### 3. Few-shot
 
@@ -193,7 +193,7 @@ Do my definitions match the ones in `queries.py`? Yes. The revised `info` defini
 
 ### 2. The policy layer
 
-I expect the 0.95 cutoff to prevent at least one routing error because low-confidence choices may be less reliable.
+I inspected the classifier’s confidence distribution before choosing a cutoff of 0.95. I wanted the router to use the classifier’s chosen route only when it reported high confidence. Before evaluating the cutoff, I expected the `info` fallback to prevent at least one routing error.
 
 Across 24 messages in each live run, confidence ranged from `0.00` to `1.00`, with three distinct values. Only `Q-22` fell below `0.95` in each run. The classifier chose `other` with confidence `0.00`, and `other` was the expected route. The cutoff redirected it to `info`, introducing one routing error in each run. That gives me a reason to reconsider whether confidence alone should trigger the fallback.
 
@@ -234,7 +234,7 @@ Confusion pairs, with direction:
 - router: 12,239 tokens in the original run and 13,062 in the revised run
 - the classifying call alone: 7,718 tokens in the original run and 8,171 in the revised run, about 63 per cent of the routed total in both runs
 
-Before running the comparison, I predicted that the classifier would use about 60% of the router’s tokens. It receives all five route definitions on every call, while each specialist receives instructions for only one route. The measured share was about 63% in both live runs.
+Before running the comparison, I predicted that the classifier would use slightly more than half of the router’s tokens. It receives all five route definitions on every call, while each specialist receives instructions for only one route. The measured share was about 63% in both live runs.
 
 In the revised live run, the monolith took 142.7 seconds and the router took 338.7 seconds across the same 24 messages. The router took about 2.4 times as long. I used the revised run for this comparison because my computer went to sleep during the original run.
 
@@ -330,13 +330,13 @@ With tools, T-02, T-03, and T-06 changed from fail to pass, and T-04 changed fro
 
 On T-10, the live `qwen2.5:7b` run answered: “The annual dog registration fee in Remerbaach is 24.00 EUR.” The handbook gives no dog registration fee. It lists €24.00 as the annual administrative fee for waste collection.
 
-The scorer looks for phrases to flag refusals without a search. T-04 failed without using tools on both models, but that check did not flag it in either live run. A scorer that looks for exact phrases and figures can also miss an answer that contains the expected figure but describes it incorrectly.
+The scorer looks for phrases to flag refusals without a search. T-04 failed without using tools on both models, but that check did not flag it in either live run. On T-06, the scorer gave `qwen2.5:7b` a pass because the answer contained `150`. The model called €150 a minimum and left the actual price open, even though €150 was the expected total.
 
 ### 6. Blast radius
 
-**Pre-run prediction:** At least one trial would still follow the notice-board instruction despite a defensive prompt.
+Before running the defense trials, I expected the agent to follow the notice-board instruction in at least one trial with a defensive prompt.
 
-Prompt-level defenses tried: 0 of 8 live trials blocked the notice-board instruction. The text reached the model and the marker appeared in the answer in all eight trials, including both controls. The course recording also gave 0 of 8.
+The notice-board text reached the model in all eight live trials. The agent followed the instruction in all eight, including the two no-defense controls. None of the six trials with a defensive prompt blocked it. In the course replay, the agent also followed the instruction in all eight trials.
 
 With the current tools, the agent can search the local handbook and run calculations. A malicious notice can affect what it tells a resident, for example by pushing it to give misleading information that the resident might act on. The current tools have no ability to change records, send messages, or move money.
 
