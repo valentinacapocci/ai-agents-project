@@ -230,6 +230,8 @@ Confusion pairs, with direction:
 
 `request` had the most errors in the original run, and `info` received four of the seven misroutes. I changed the `info` definition to make clear that a fault needing action belongs under `request`. On the rerun, `request` went from 3/7 to 7/7, and `info` stayed at 5/5. All three remaining errors were `other` messages. I used the first run’s errors to decide what to change, then tested on the same 24 queries. I would test on new messages before expecting the same improvement elsewhere.
 
+I chose to rewrite `info` first because I expected a clearer boundary to reduce request -> info errors on messages that needed action.
+
 ### 4. What routing cost
 
 - monolith: 6,610 tokens over 24 queries in both runs

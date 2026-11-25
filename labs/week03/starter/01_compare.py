@@ -66,7 +66,8 @@ def run_router(client, model=SMALL.name, *, replay=False):
             decision, meta_c = classify(client, q.text, model)
             step.tokens(meta_c["prompt_tokens"], meta_c["completion_tokens"])
             step.detail(route=decision.route if decision else None,
-                        confidence=decision.confidence if decision else None)
+                confidence=decision.confidence if decision else None,
+                evidence=decision.evidence if decision else None)
 
         routed = apply_policy(decision, q.text)
         with rec.step("check", "policy") as step:

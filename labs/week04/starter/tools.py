@@ -161,7 +161,8 @@ COMPUTE_SCHEMA: Dict[str, Any] = {
         "Example of a valid expression: '26 * 8.50 + 24.00'. "
         "Use it for ANY arithmetic on figures you retrieved from the "
         "handbook, instead of calculating in your answer, because a computed "
-        "result can be checked and a number written out in prose cannot."
+        "result can be checked and a number written out in prose cannot. "
+        "An empty expression returns a tool error."
     ),
     "input_schema": {
         "type": "object",
