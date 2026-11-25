@@ -1,0 +1,97 @@
+{
+  "rows": [
+    {
+      "architecture": "A baseline",
+      "green": false,
+      "tool_calls": 24,
+      "tokens": 35795,
+      "seconds": 633.3
+    },
+    {
+      "architecture": "B planner",
+      "green": false,
+      "plan_ok": true,
+      "plan_problems": [],
+      "applied": "applied",
+      "verdict": null,
+      "verdict_reason": null,
+      "fix": "booking.py: start_hour: int = 10 -> start_hour: int = 20",
+      "tokens": 1300,
+      "seconds": 92.4
+    },
+    {
+      "architecture": "C planner+reviewer",
+      "green": true,
+      "plan_ok": true,
+      "plan_problems": [],
+      "applied": "applied",
+      "verdict": "approve",
+      "verdict_reason": "Change ensures 20:00 qualifies for off-peak, fixing the test failure",
+      "fix": "discounts.py: return start_hour > OFF_PEAK_FROM_HOUR -> return start_hour >= OFF_PEAK_FROM_HOUR",
+      "tokens": 2001,
+      "seconds": 100.9
+    },
+    {
+      "architecture": "A baseline",
+      "green": true,
+      "tool_calls": 14,
+      "tokens": 11481,
+      "seconds": 338.2
+    },
+    {
+      "architecture": "B planner",
+      "green": false,
+      "plan_ok": true,
+      "plan_problems": [],
+      "applied": "applied",
+      "verdict": null,
+      "verdict_reason": null,
+      "fix": "booking.py: start_hour: int = 10 -> start_hour: int = 20",
+      "tokens": 1308,
+      "seconds": 93.3
+    },
+    {
+      "architecture": "C planner+reviewer",
+      "green": true,
+      "plan_ok": true,
+      "plan_problems": [],
+      "applied": "applied",
+      "verdict": "approve",
+      "verdict_reason": "Change ensures 20:00 qualifies for off-peak, fixing the test failure",
+      "fix": "discounts.py: return start_hour > OFF_PEAK_FROM_HOUR -> return start_hour >= OFF_PEAK_FROM_HOUR",
+      "tokens": 1950,
+      "seconds": 55.5
+    },
+    {
+      "architecture": "A baseline",
+      "green": false,
+      "tool_calls": 36,
+      "tokens": 67366,
+      "seconds": 1368.0
+    },
+    {
+      "architecture": "B planner",
+      "green": false,
+      "plan_ok": true,
+      "plan_problems": [],
+      "applied": "applied",
+      "verdict": null,
+      "verdict_reason": null,
+      "fix": "pricing.py: if booking.start_hour > 20: -> if booking.start_hour >= 20:",
+      "tokens": 1500,
+      "seconds": 44.8
+    },
+    {
+      "architecture": "C planner+reviewer",
+      "green": true,
+      "plan_ok": true,
+      "plan_problems": [],
+      "applied": "applied",
+      "verdict": "approve",
+      "verdict_reason": "The change correctly makes 20:00 eligible for the off-peak rate, aligning with the test expectation.",
+      "fix": "discounts.py: return start_hour > OFF_PEAK_FROM_HOUR -> return start_hour >= OFF_PEAK_FROM_HOUR",
+      "tokens": 2001,
+      "seconds": 52.9
+    }
+  ]
+}

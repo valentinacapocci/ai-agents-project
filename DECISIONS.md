@@ -366,3 +366,69 @@ The Week 4 runner loaded my existing gold set and added ten tasks, bringing it t
 ### Deferred
 
 Nothing deferred.
+
+# Week 5 · A planner, a fixer, and a reviewer
+
+**Run conditions.** I used `qwen2.5:7b` locally through Ollama on 2026-11-25, with Python 3.11.6 and Pydantic AI 2.74.0. I ran each architecture three times per task on fresh temporary copies. The tables exclude the one-round smoke test.
+
+### 1. The plan schema
+
+`Plan` has three fields: `goal: str`, `steps: list[str]`, and `suspect_file: str`. I used a flat list of steps to keep the output schema simple. The starter reports that nested step objects exhausted output retries on this model. I did not run the nested version myself.
+
+My first live attempt with the flat schema also exhausted three output retries in the default output mode. Switching to `PromptedOutput(Plan)` produced a valid two-step plan that named `discounts.py` and included a test step. I printed the full plan before applying any edit. The fixer hit the same error in default mode, so I switched it to `PromptedOutput(Fix)` and obtained a structured proposal containing the file, original line, replacement line, and reason.
+
+### 2. The validator
+
+`validate_plan` checks for two to six steps, a known source file, a step that runs the tests, and no proposed edits to tests. Two to six steps give the planner room to inspect, change, and verify a small fix. The step checks use keywords, so they can miss how a step is phrased or whether the chosen file actually contains the bug. `apply_fix` independently checks the proposed edit.
+
+I submitted a deliberately broken one-step plan that named `missing.py`, proposed editing `tests/test_pricing.py`, and omitted a test run. The validator rejected it for all four reasons. In the comparison, an invalid plan stops before the fixer is called. The smoke test demonstrated this when the planner named `booking_logic.py` and omitted a test step.
+
+### 3. Task A · The 20:00 boundary bug
+
+The fresh suite ran 16 tests with one failure and zero errors. `test_off_peak_starts_at_twenty` in `tests/test_pricing.py` expected €65.52 and got €84.24. The model proposed changing `>` to `>=` in `discounts.py`. On a temporary copy, I confirmed that `apply_fix` refused a test-file edit, applied the model’s proposal, and used `run_tests` to verify that all 16 tests passed.
+
+| Architecture | Passed | Avg. tokens per run | Avg. seconds per run |
+|---|---:|---:|---:|
+| A · Baseline | 1/3 | 38,214 | 779.8 |
+| B · Planner + fixer | 0/3 | 1,369 | 76.8 |
+| C · Planner + fixer + reviewer | 3/3 | 1,984 | 69.8 |
+
+The per-run results are in `artifacts/week05_architectures.json`.
+
+### 4. What the baseline and planner did
+
+The baseline used 14 tool calls on its passing run and 24 and 36 on its failed runs. The unconstrained search for a fix was expensive on this task. The two failed runs took 633.3 and 1,368.0 seconds and still left at least one test failing. The saved counts show the cost of those loops, but they do not identify every action that wasted time.
+
+All three B plans passed validation. B chose `booking.py` twice and changed the default start hour from 10 to 20. It chose `pricing.py` once and changed the condition in the discount summary. All three edits left the calculation in `discounts.py` untouched. The validator checked that the suspect file existed. It could not tell whether the suspected file was the one responsible for the failure.
+
+### 5. Was the reviewer worth it?
+
+For Task A, the reviewer received the proposed diff and the failing test output. I omitted the fixer’s reasoning to let the reviewer assess the patch independently.
+
+| C run | Proposed change | Reviewer verdict | Reason | Verifier |
+|---:|---|---|---|---|
+| 1 | `discounts.py`: `>` to `>=` | Approve | The change makes 20:00 eligible and addresses the test failure. | Pass |
+| 2 | `discounts.py`: `>` to `>=` | Approve | The change makes 20:00 eligible and addresses the test failure. | Pass |
+| 3 | `discounts.py`: `>` to `>=` | Approve | The change makes exactly 20:00 eligible, as the test expects. | Pass |
+
+The smoke test exposed a false approval. The reviewer accepted changing the default start hour in `booking.py`, and the suite still failed. The reviewer could recognize the correct boundary change in the measured runs, but the smoke test showed that its approval could not substitute for the verifier.
+
+On Task A, C averaged about 615 more tokens and 7.0 fewer seconds per run than B. These are differences between the full pipelines. C’s planner chose `discounts.py` in all three trials, while B chose other files. I did not log the reviewer call’s tokens and time in separate fields, so I cannot report its standalone overhead from these results. A controlled comparison would hold the proposed patch and test output fixed, then measure the reviewer call and record whether its verdict changes which patches reach the verifier.
+
+For Task A, I would choose C among the three tested setups because it passed all three trials. I would reconsider if B matched that pass rate on more trials or if a controlled test showed that the reviewer often approved incorrect patches. A review step would be most valuable if it reliably caught a requirement that the tests do not enforce.
+
+### 6. What the verifier can miss, and what Task B showed
+
+The Task A tests can miss a patch that changes `OFF_PEAK_FROM_HOUR` from 20 to 19 and leaves the strict `>` comparison in place. For integer start hours, `hour > 19` and `hour >= 20` give the same eligibility, including excluding exactly 19:00. The weakness of the patch is that the threshold no longer states the intended start hour directly. The tests check behavior on the inputs they cover and leave that implementation requirement unchecked. That is why the gold set rejects the threshold change even if the suite passes.
+
+For Task B, I applied the verified Task A fix to each temporary copy before starting the trial, so the suite passed at the start. A run counted as complete only if the suite still passed and the checker detected all four direct substitutions of named constants in `discounts.py`. The checker looks for the requested source patterns, so equivalent code written in a different form could be missed.
+
+| Architecture | Complete | Tests passed | Substitutions by run | Avg. tokens | Avg. seconds |
+|---|---:|---:|---|---:|---:|
+| A · Baseline | 0/3 | 3/3 | 0, 0, 0 | 5,304 | 170.5 |
+| B · Planner + fixer | 0/3 | 2/3 | 1, 1, 0 | 1,460 | 61.6 |
+| C · Planner + fixer + reviewer | 0/3 | 3/3 | 1, 1, 1 | 2,398 | 88.6 |
+
+The planner earned some of its cost on Task B by producing partial progress at a lower average token cost than the baseline. It did not earn that cost if the goal was a complete refactor. Each proposed patch was limited to one line, and the requested direct refactor required four substitutions. C averaged about 938 more tokens and 27.0 more seconds per run than B, with the same completion rate. The completion gap seen on Task A disappeared on Task B. A and C also passed the tests on every Task B run while leaving the refactor incomplete, which shows why I checked the substitutions separately.
+
+The per-run Task B results are in `artifacts/week05_refactor.json`. The Week 5 gold set reached 46 cases.
