@@ -449,3 +449,68 @@ The per-run Task B results are in `artifacts/week05_refactor.json`. The Week 5 g
 ### Deferred
 
 None.
+
+# Week 6: memory, a stateless MCP server, and an A2A channel
+
+---
+
+## Week 6
+
+**Run conditions.** MCP SDK version: `2.0.0rc1` | specification revision: `2026-07-28` | memory comparison model: `qwen3:4b-instruct`, served locally through Ollama at temperature 0 | date: 2026-11-26. The MCP and A2A checks ran over localhost without a model.
+
+### 1. The handle
+
+Format I chose: `write` returns a `fact-` handle followed by a cryptographically random URL-safe token. The provided `open_case` implementation returns a `case-` handle followed by 12 random hexadecimal characters.
+
+A guessable handle could expose another resident's case or make it possible to target a fact for deletion if the corresponding tool accepted the handle alone. For the homework, I added a shared-key check to `case_subject`. A lookup without the key was denied. The same case opened on port 8000 resolved on port 8001 when the client supplied the key. This is a local lab check on case lookup. It does not provide per-resident authorization across all memory tools.
+
+### 2. Conflict and retention
+
+- A write that contradicts an older fact: keep both, because overwriting would lose the earlier information. Search ranks by keyword overlap, so the caller may need to resolve a conflict if both facts come back.
+- How long a record lives: until it is explicitly forgotten. The lab store has no automatic expiry.
+
+A fresh Python process could read the facts written by the first process. Searching one resident's facts excluded another resident's matching fact. A `k=1` search returned only one result.
+
+### 3. What k costs
+
+I measured `k=1` with one recalled fact, `Permit review scheduled`. Adding the fact and its label increased the first-call input from 41 to 49 tokens, a difference of **8 input tokens** for this prompt. The cost depends on the length of the facts returned. The default `k` is 3.
+
+At four hundred facts in the store, this implementation still loads the JSON file and scans all the records to find those for the requested subject. It scores only that subject's facts, sorts the matches, and returns at most `k`. The limit bounds the number of facts sent to the model. It does not bound the work needed to find them. I did not benchmark a four-hundred-fact store.
+
+### 4. Memory off against memory on
+
+| Condition | First-call input tokens | Total tokens | Model turns observed | Outcome |
+|---|---:|---:|---:|---|
+| Memory off | 41 | 192 | 2 | Reported that the review was scheduled after the scripted follow-up supplied the fact |
+| Memory on | 49 | 81 | 1 | Failed to report the scheduled review even though the fact was included in the prompt |
+
+The memory-on run used fewer total tokens because the experiment stopped after one model call. It did not solve the task. This trial shows the cost of adding a recalled fact, but it does not show that memory saved a turn on a successful answer.
+
+### 5. The protocol, at the wire
+
+| Request revision | Server mode | Status | `Mcp-Session-Id` | Answered |
+|---|---|---:|---|---|
+| `2026-07-28` | `stateless_http=True` | 200 | Absent | Yes |
+| `2026-07-28` | `stateless_http=False` | 200 | Absent | Yes |
+| `2025-11-25` | `stateless_http=True` | 200 | Absent | Yes |
+| `2025-11-25` | `stateless_http=False` | 400 | Present | No |
+
+The original test sent the identical `2026-07-28` request in both modes. Both modes answered without a session header. The handout expected the session-mode request to fail, so I ran a follow-up control with the same legacy request sent to both modes. That control reproduced the `200` versus `400` difference.
+
+The legacy session-mode server returned this exact error:
+
+> Bad Request: Missing session ID
+
+The two-server handle demonstration shows that both instances can resolve a case from the shared file. By itself, it cannot show whether HTTP requests depend on a transport session. The handle identifies application state in either transport mode.
+
+The supplied A2A demo read the agent card's `skills` field before delegating. It sent translation and skipped summarization. The successful task returned `completed` with a text artifact. The failed task returned `failed` with a glossary error, and the demo proposed a local fallback marked as degraded. The timeout retained `task-4` because the remote work could still be running. An artifact without a text part was reported as a mismatch.
+
+For the take-home channel, `04_a2a_homework.py` fetched a local agent card and sent supported translation requests over HTTP. I verified three paths. A known phrase returned `examen du permis planifie`, summarization stayed local without a task POST, and an unknown phrase returned `failed` with `No glossary match`.
+
+### 6. What forget does not reach
+
+`forget` removes the fact from the store, and reloading the file confirmed that the deletion persisted. A second deletion of the same handle returned `False`. Copies already included in conversation messages, logs, or earlier responses can still exist. If a resident asks for their information to be erased, deleting the stored fact only clears that copy.
+
+### Deferred
+
+None.

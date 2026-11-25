@@ -1,0 +1,38 @@
+{
+  "facts": [
+    {
+      "subject": "A. Muller",
+      "kind": "status",
+      "text": "Permit review scheduled",
+      "handle": "fact-WucbChQOlJoXBqYuBPPxsK8o",
+      "written_at": "2026-11-25T23:19:15Z"
+    },
+    {
+      "subject": "A. Muller",
+      "kind": "status",
+      "text": "Permit review scheduled",
+      "handle": "fact-n8bRpii9mwZKYi5GtKpltgan",
+      "written_at": "2026-11-25T23:36:59Z"
+    },
+    {
+      "subject": "A. Muller",
+      "kind": "status",
+      "text": "Permit review scheduled",
+      "handle": "fact-A0Iop6B8rowUbwHLIoME-bOX",
+      "written_at": "2026-11-25T23:37:36Z"
+    },
+    {
+      "subject": "A. Muller",
+      "kind": "status",
+      "text": "Permit review scheduled",
+      "handle": "fact-BUpqX-xq1rm_JfOqC7FtHM4-",
+      "written_at": "2026-11-25T23:38:24Z"
+    }
+  ],
+  "cases": {
+    "case-6bbf1509ed79": "A. Muller",
+    "case-d05d921e00a7": "A. Muller",
+    "case-d654d3233e89": "A. Muller",
+    "case-ec90304a3251": "A. Muller"
+  }
+}
