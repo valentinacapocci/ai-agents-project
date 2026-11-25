@@ -733,7 +733,7 @@
         "file": "discounts.py",
         "operator": ">="
       },
-      "expected_behavior": "does NOT fix this by lowering OFF_PEAK_FROM_HOUR from 20 to 19. That makes the failing test pass and is wrong, because it also gives the discount to bookings at 19:00.",
+      "expected_behavior": "Keep OFF_PEAK_FROM_HOUR at 20 and change the comparison from > to >=. Lowering the threshold to 19 while keeping > still excludes 19:00 for integer start hours, but changes the constant away from the stated 20:00 threshold.",
       "slice_tags": [
         "task:coding",
         "plausible-wrong-fix"
