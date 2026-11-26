@@ -514,3 +514,74 @@ For the take-home channel, `04_a2a_homework.py` fetched a local agent card and s
 ### Deferred
 
 None.
+
+## Week 7
+
+**Run conditions.** embedding model: `nomic-embed-text:latest` | dimensionality: 768 | chunk size: 600 characters | overlap: 80 characters | k: 5 | store: Chroma | date: 2026-11-26 | table from: my own index in Ubuntu under WSL
+
+### 1. The chunker
+
+size 600 characters, overlap 80 characters, because overlap keeps some context at chunk boundaries and the middle size gave the same dense recall@5 as the smaller and larger sizes I tested. Each chunk keeps its document ID and section heading so all three sizes can be scored against the same gold sections.
+
+### 2. The index
+
+84 chunks, 768 dimensions, 239.00 seconds for one full indexing run.
+
+### 3. The table
+
+| qid | dense rank | keyword rank | recall@5 | tags |
+| --- | ---: | ---: | --- | --- |
+| Q01 | 1 | 2 | dense 1.00, keyword 1.00 | distractor, superseded |
+| Q02 | 1 | 1 | dense 1.00, keyword 1.00 | rare-token |
+| Q03 | 1 | 1 | dense 1.00, keyword 1.00 | easy |
+| Q04 | 1 | 1 | dense 1.00, keyword 1.00 | vocabulary |
+| Q05 | 22 | 7 | dense 0.00, keyword 0.00 | multi-document |
+| Q06 | 1 | 16 | dense 1.00, keyword 0.00 | negation |
+| Q07 | 1 | 3 | dense 1.00, keyword 1.00 | easy |
+| Q08 | 1 | 1 | dense 1.00, keyword 1.00 | numeric |
+| Q09 | 1 | 2 | dense 1.00, keyword 1.00 | distractor |
+| Q10 | 1 | 1 | dense 1.00, keyword 1.00 | easy |
+| Q11 | 1 | 5 | dense 1.00, keyword 1.00 | easy |
+| Q12 | — | — | — | unanswerable |
+
+Q12 has no gold passage. The retrieval run did not measure refusal.
+
+In the chunk sweep, I kept overlap at 80 characters and k at 5. The 300-character index had 161 chunks and built in 272.53 seconds. The 1200-character index had 57 chunks and built in 83.47 seconds, the fastest of the three measured builds. The per-question results are in `artifacts/week07_chunk_sweep.json`.
+
+- **Q02, form RB-1140b:** Keyword rank went from 9 at 300 characters to 1 at both 600 and 1200. Dense stayed at rank 1.
+- **Q06, shuttle fare:** Keyword rank went from 11 to 16 to 4, reaching the top five only at 1200. Dense stayed at rank 1.
+- **Q11, dog declaration:** Keyword rank went from 18 to 5 to 6, reaching the top five only at 600. Dense stayed at rank 1.
+
+### 4. Good pipeline, or easy task?
+
+Ten of eleven questions ranking the gold chunk first mostly shows that the single-section questions in this small set were easy for dense retrieval.
+
+In the app check, `memory.search` returned three hits for “How do I register a new address?”. The relevant `RB-ARRIVEE` passage ranked second, between a current parking-vignette passage and a superseded one. The hit count alone would have hidden that ranking problem.
+
+At the 600-character baseline, Q06 showed the largest advantage for dense retrieval: rank 1 versus rank 16 for keyword search. The question asks whether riders need to “pay,” while the handbook says the shuttle is “free of charge,” so the meaning is easier to match than the words.
+
+### 5. The question that fails on both
+
+Question: Q05, “I have just moved to Remerbaach and I own a car. What do I have to do at the commune?” Dense rank 22, keyword rank 7 at the 600-character baseline.
+
+Why it fails:
+
+The question needs two sections, one on the arrival declaration deadline and one on applying for a parking vignette. A likely reason for the miss is that the broad wording gives each retriever a weak signal for the two specific sections it needs to find.
+
+Would any chunk size fix it? None of the three tested sizes fixed it, because neither retriever returned either gold section in the top five at 300, 600, or 1200 characters. The first dense gold hit moved from rank 32 to 22 to 20, and the first keyword gold hit moved from rank 13 to 7 to 8.
+
+### 6. The gold-set correction
+
+The note said: RB-1140b is a rare exact identifier, so keyword search should work better than dense retrieval.
+
+My measurement said: Both methods ranked the correct section first at 600 characters with 80 overlap. At 300 characters, dense ranked it first and keyword ranked it ninth.
+
+The corrected note:
+
+> RB-1140b is a rare exact identifier. In my live run at size 600 and overlap 80, both dense and keyword retrieval ranked the correct section first. The superseded page contains the similar identifier RB-1140a.
+
+It cost one baseline measurement to find the tie. Without that measurement, I would have taken the claimed keyword advantage as a premise for the stretch exercise.
+
+### Deferred
+
+I left the optional Q05 query-splitting experiment for later because I focused on the required sweep, app integration, and verification. The gold set reached 58 cases, and `python -m project.verify` accepted the gold set and all 525 traces.
