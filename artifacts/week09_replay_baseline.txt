@@ -1,0 +1,7 @@
+Clean replay fixture — before coding
+Document    Recorded total  Expected total  Failure
+INV-001           1 498.54         1498.54  none
+INV-002             851.00           851.0  none
+INV-003            1129.23         1129.23  none
+INV-004           2 446.94         2446.94  none
+INV-005             823.68          823.68  none

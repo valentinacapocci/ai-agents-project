@@ -1,38 +1,74 @@
-"""Stage: the human approval gate. Replaced in week 8.
+import json
+import select
+import sys
+from uuid import uuid4
 
-Week 8 gates exactly one step, the irreversible one, with a LangGraph
-`interrupt` and a checkpoint that a second process resumes. In this
-application the irreversible step is submitting a case, and it reaches the
-gate through one function:
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.graph import END, START, StateGraph
+from langgraph.types import Command, interrupt
+from pydantic import ValidationError
+from typing_extensions import TypedDict
 
-    request_approval(payload: dict, unattended: bool) -> dict
+from project.trace import repo_root
 
-`payload` has the shape of week 8's interrupt: `action`, `case_id`,
-`arguments` (the exact arguments, never a summary a model wrote),
-`evidence`, `degraded`, and `missing`. The return value has the shape of
-week 8's resume value: `verdict` ("approve", "edit", "reject", or
-"timeout"), `by`, and, for an edit, the edited `arguments`.
-
-`unattended` is True in batch mode, which is how week 10 runs the
-application. Nobody is there to answer, so your gate must return what week
-8 decided an unanswered approval does after its timeout, immediately,
-instead of waiting for a human who is not coming.
-
-Until you wire yours in, the gate refuses every submission. That is the
-safe default for a stub, and it means nothing irreversible can happen.
-
-This is a stage you write rather than copy, because week 8's graph runs over
-its own toy tools. Take your `submit` node from `labs/week08/starter/graph.py`
-with its `interrupt` call, give it a small graph and a `SqliteSaver` of its
-own, and write `request_approval` around it. Keep week 8's rule: above the
-interrupt, read only.
-"""
-
-from __future__ import annotations
-
-from .stub import stub
+from .extractor import ServiceRequest
 
 
-@stub(week=8, does="refuses: rejects every submission, nothing is submitted")
+class ApprovalState(TypedDict):
+    payload: dict
+    decision: dict
+
+
+def approval_node(state: ApprovalState) -> dict:
+    return {"decision": interrupt(state["payload"])}
+
+
+def read_decision(payload: dict) -> dict:
+    print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+    print("Type approve, reject, or edit {JSON fields}: ", end="", flush=True)
+    if not select.select([sys.stdin], [], [], 300)[0]:
+        return {"verdict": "timeout", "by": "system"}
+
+    verdict, _, edits = sys.stdin.readline().strip().partition(" ")
+    if verdict == "approve" and not edits:
+        return {"verdict": "approve", "by": "operator"}
+    if verdict == "edit":
+        try:
+            changes = json.loads(edits)
+            if not isinstance(changes, dict):
+                raise ValueError("Expected a JSON object")
+            original = payload["arguments"]
+            if changes.keys() - original.keys():
+                raise ValueError("Unknown request field")
+            record = ServiceRequest.model_validate({**original, **changes})
+        except (ValueError, ValidationError) as exc:
+            print(f"Edit rejected: {exc}")
+        else:
+            return {
+                "verdict": "edit",
+                "by": "operator",
+                "arguments": record.model_dump(mode="json"),
+            }
+
+    return {"verdict": "reject", "by": "operator"}
+
+
 def request_approval(payload: dict, unattended: bool = False) -> dict:
-    return {"verdict": "reject", "by": "stub", "arguments": {}}
+    if unattended or not sys.stdin.isatty():
+        return {"verdict": "timeout", "by": "system"}
+
+    builder = StateGraph(ApprovalState)
+    builder.add_node("approval", approval_node)
+    builder.add_edge(START, "approval")
+    builder.add_edge("approval", END)
+
+    path = repo_root() / "artifacts" / "app_approvals.sqlite"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    config = {"configurable": {"thread_id": uuid4().hex}}
+
+    with SqliteSaver.from_conn_string(str(path)) as saver:
+        graph = builder.compile(checkpointer=saver)
+        paused = graph.invoke({"payload": payload}, config)
+        decision = read_decision(paused["__interrupt__"][0].value)
+        result = graph.invoke(Command(resume=decision), config)
+        return result["decision"]

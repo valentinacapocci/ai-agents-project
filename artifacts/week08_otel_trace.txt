@@ -1,0 +1,238 @@
+{
+    "name": "search.attempt",
+    "context": {
+        "trace_id": "0x7ec5b2fbac90fe402195d476e5d82b7c",
+        "span_id": "0x7f313240560d33ee",
+        "trace_state": "[]"
+    },
+    "kind": "SpanKind.INTERNAL",
+    "parent_id": "0x8ee0b083e6f872ef",
+    "start_time": "2026-11-26T09:47:26.536045Z",
+    "end_time": "2026-11-26T09:47:26.569181Z",
+    "status": {
+        "status_code": "ERROR",
+        "description": "ToolTimeout: search timed out"
+    },
+    "attributes": {},
+    "events": [
+        {
+            "name": "exception",
+            "timestamp": "2026-11-26T09:47:26.569145Z",
+            "attributes": {
+                "exception.type": "faults.ToolTimeout",
+                "exception.message": "search timed out",
+                "exception.stacktrace": "Traceback (most recent call last):\n  File \"/home/valen/.venvs/ai-agents-week07/lib/python3.14/site-packages/opentelemetry/trace/__init__.py\", line 602, in use_span\n    yield span\n  File \"/home/valen/.venvs/ai-agents-week07/lib/python3.14/site-packages/opentelemetry/sdk/trace/__init__.py\", line 1136, in start_as_current_span\n    yield span\n  File \"<stdin>\", line 16, in run\n  File \"/mnt/c/Users/valen/OneDrive/Desktop/GenAI/ai-agents-project/labs/week08/starter/tools.py\", line 31, in search\n    return plan.apply(\"search\", [hit] if hit else [])\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/c/Users/valen/OneDrive/Desktop/GenAI/ai-agents-project/labs/week08/starter/faults.py\", line 95, in apply\n    raise ToolTimeout(f\"{tool} timed out\")\nfaults.ToolTimeout: search timed out\n",
+                "exception.escaped": "False"
+            }
+        }
+    ],
+    "links": [],
+    "resource": {
+        "attributes": {
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": "1.45.2",
+            "service.instance.id": "5f85e9f6-233d-402a-80f1-bd5d497ddb9a",
+            "service.name": "unknown_service:python"
+        },
+        "schema_url": ""
+    }
+}
+{
+    "name": "search.attempt",
+    "context": {
+        "trace_id": "0x7ec5b2fbac90fe402195d476e5d82b7c",
+        "span_id": "0xce232b57e2b34314",
+        "trace_state": "[]"
+    },
+    "kind": "SpanKind.INTERNAL",
+    "parent_id": "0x8ee0b083e6f872ef",
+    "start_time": "2026-11-26T09:47:26.601612Z",
+    "end_time": "2026-11-26T09:47:26.612624Z",
+    "status": {
+        "status_code": "ERROR",
+        "description": "ToolTimeout: search timed out"
+    },
+    "attributes": {},
+    "events": [
+        {
+            "name": "exception",
+            "timestamp": "2026-11-26T09:47:26.612589Z",
+            "attributes": {
+                "exception.type": "faults.ToolTimeout",
+                "exception.message": "search timed out",
+                "exception.stacktrace": "Traceback (most recent call last):\n  File \"/home/valen/.venvs/ai-agents-week07/lib/python3.14/site-packages/opentelemetry/trace/__init__.py\", line 602, in use_span\n    yield span\n  File \"/home/valen/.venvs/ai-agents-week07/lib/python3.14/site-packages/opentelemetry/sdk/trace/__init__.py\", line 1136, in start_as_current_span\n    yield span\n  File \"<stdin>\", line 16, in run\n  File \"/mnt/c/Users/valen/OneDrive/Desktop/GenAI/ai-agents-project/labs/week08/starter/tools.py\", line 31, in search\n    return plan.apply(\"search\", [hit] if hit else [])\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/c/Users/valen/OneDrive/Desktop/GenAI/ai-agents-project/labs/week08/starter/faults.py\", line 95, in apply\n    raise ToolTimeout(f\"{tool} timed out\")\nfaults.ToolTimeout: search timed out\n",
+                "exception.escaped": "False"
+            }
+        }
+    ],
+    "links": [],
+    "resource": {
+        "attributes": {
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": "1.45.2",
+            "service.instance.id": "5f85e9f6-233d-402a-80f1-bd5d497ddb9a",
+            "service.name": "unknown_service:python"
+        },
+        "schema_url": ""
+    }
+}
+{
+    "name": "search.attempt",
+    "context": {
+        "trace_id": "0x7ec5b2fbac90fe402195d476e5d82b7c",
+        "span_id": "0xad526d82177291eb",
+        "trace_state": "[]"
+    },
+    "kind": "SpanKind.INTERNAL",
+    "parent_id": "0x8ee0b083e6f872ef",
+    "start_time": "2026-11-26T09:47:26.651056Z",
+    "end_time": "2026-11-26T09:47:26.661712Z",
+    "status": {
+        "status_code": "ERROR",
+        "description": "ToolTimeout: search timed out"
+    },
+    "attributes": {},
+    "events": [
+        {
+            "name": "exception",
+            "timestamp": "2026-11-26T09:47:26.661681Z",
+            "attributes": {
+                "exception.type": "faults.ToolTimeout",
+                "exception.message": "search timed out",
+                "exception.stacktrace": "Traceback (most recent call last):\n  File \"/home/valen/.venvs/ai-agents-week07/lib/python3.14/site-packages/opentelemetry/trace/__init__.py\", line 602, in use_span\n    yield span\n  File \"/home/valen/.venvs/ai-agents-week07/lib/python3.14/site-packages/opentelemetry/sdk/trace/__init__.py\", line 1136, in start_as_current_span\n    yield span\n  File \"<stdin>\", line 16, in run\n  File \"/mnt/c/Users/valen/OneDrive/Desktop/GenAI/ai-agents-project/labs/week08/starter/tools.py\", line 31, in search\n    return plan.apply(\"search\", [hit] if hit else [])\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/c/Users/valen/OneDrive/Desktop/GenAI/ai-agents-project/labs/week08/starter/faults.py\", line 95, in apply\n    raise ToolTimeout(f\"{tool} timed out\")\nfaults.ToolTimeout: search timed out\n",
+                "exception.escaped": "False"
+            }
+        }
+    ],
+    "links": [],
+    "resource": {
+        "attributes": {
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": "1.45.2",
+            "service.instance.id": "5f85e9f6-233d-402a-80f1-bd5d497ddb9a",
+            "service.name": "unknown_service:python"
+        },
+        "schema_url": ""
+    }
+}
+{
+    "name": "search.fallback",
+    "context": {
+        "trace_id": "0x7ec5b2fbac90fe402195d476e5d82b7c",
+        "span_id": "0x64f6a8e0f2a17939",
+        "trace_state": "[]"
+    },
+    "kind": "SpanKind.INTERNAL",
+    "parent_id": "0x8ee0b083e6f872ef",
+    "start_time": "2026-11-26T09:47:26.662239Z",
+    "end_time": "2026-11-26T09:47:26.662262Z",
+    "status": {
+        "status_code": "UNSET"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "resource": {
+        "attributes": {
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": "1.45.2",
+            "service.instance.id": "5f85e9f6-233d-402a-80f1-bd5d497ddb9a",
+            "service.name": "unknown_service:python"
+        },
+        "schema_url": ""
+    }
+}
+{
+    "name": "gate.pause",
+    "context": {
+        "trace_id": "0x7ec5b2fbac90fe402195d476e5d82b7c",
+        "span_id": "0x8ee0b083e6f872ef",
+        "trace_state": "[]"
+    },
+    "kind": "SpanKind.INTERNAL",
+    "parent_id": "0xb70917ee90870e97",
+    "start_time": "2026-11-26T09:47:26.518566Z",
+    "end_time": "2026-11-26T09:47:26.669326Z",
+    "status": {
+        "status_code": "UNSET"
+    },
+    "attributes": {
+        "gate.action": "submit_case"
+    },
+    "events": [],
+    "links": [],
+    "resource": {
+        "attributes": {
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": "1.45.2",
+            "service.instance.id": "5f85e9f6-233d-402a-80f1-bd5d497ddb9a",
+            "service.name": "unknown_service:python"
+        },
+        "schema_url": ""
+    }
+}
+{
+    "name": "gate.resume",
+    "context": {
+        "trace_id": "0x7ec5b2fbac90fe402195d476e5d82b7c",
+        "span_id": "0x8b27db3317e8034b",
+        "trace_state": "[]"
+    },
+    "kind": "SpanKind.INTERNAL",
+    "parent_id": "0xb70917ee90870e97",
+    "start_time": "2026-11-26T09:47:26.669639Z",
+    "end_time": "2026-11-26T09:47:26.681047Z",
+    "status": {
+        "status_code": "UNSET"
+    },
+    "attributes": {
+        "gate.decision": "approve",
+        "gate.submitted": true
+    },
+    "events": [],
+    "links": [],
+    "resource": {
+        "attributes": {
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": "1.45.2",
+            "service.instance.id": "5f85e9f6-233d-402a-80f1-bd5d497ddb9a",
+            "service.name": "unknown_service:python"
+        },
+        "schema_url": ""
+    }
+}
+{
+    "name": "week08.fault-to-approval",
+    "context": {
+        "trace_id": "0x7ec5b2fbac90fe402195d476e5d82b7c",
+        "span_id": "0xb70917ee90870e97",
+        "trace_state": "[]"
+    },
+    "kind": "SpanKind.INTERNAL",
+    "parent_id": null,
+    "start_time": "2026-11-26T09:47:26.518500Z",
+    "end_time": "2026-11-26T09:47:26.681828Z",
+    "status": {
+        "status_code": "UNSET"
+    },
+    "attributes": {},
+    "events": [],
+    "links": [],
+    "resource": {
+        "attributes": {
+            "telemetry.sdk.language": "python",
+            "telemetry.sdk.name": "opentelemetry",
+            "telemetry.sdk.version": "1.45.2",
+            "service.instance.id": "5f85e9f6-233d-402a-80f1-bd5d497ddb9a",
+            "service.name": "unknown_service:python"
+        },
+        "schema_url": ""
+    }
+}
+Trace check passed: ['search:fallback:x3', 'fees:ok:x1', 'gate:approve:a.muller']

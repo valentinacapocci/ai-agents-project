@@ -1,0 +1,5 @@
+DEGRADATION SWEEP, scored on all three amounts
+
+variant                   001      002      003      004      005     WRONG
+----------------------------------------------------------------------------------
+clean                      ok       ok       ok       ok       ok         0

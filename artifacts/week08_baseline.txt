@@ -1,0 +1,14 @@
+fault                       search                fees     verdict
+----------------------------------------------------------------------
+timeout               escalated x1        escalated x1      failed
+rate_limit            escalated x1        escalated x1      failed
+server_error          escalated x1        escalated x1      failed
+malformed                    ok x1               ok x1    degraded
+empty                        ok x1               ok x1      failed
+slow                         ok x1               ok x1     correct
+drift                        ok x1               ok x1    degraded
+flaky                 escalated x1        escalated x1      failed
+
+  BASELINE, no policy: correct 1, WRONG 0, degraded 2, failed 5  (out of 8)
+  The number that matters is WRONG: an answer that is confidently
+  incorrect is worse than one that admits it is incomplete.

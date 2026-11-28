@@ -1,0 +1,20 @@
+
+ARCHITECTURE COMPARISON on the clean images
+
+doc         grouped    g s     naive    n s   guard on the naive call
+------------------------------------------------------------------------------
+INV-001          ok   34.0        ok   46.7   -
+INV-002          ok   28.7        ok   21.5   -
+INV-003          ok   38.0        ok   32.6   -
+INV-004          ok   24.8        ok   19.4   -
+INV-005          ok   24.9        ok   19.7   -
+
+  total wall clock: grouped 150s, naive 140s
+  largest output:   grouped 46 tokens, naive 85 tokens
+
+  If both columns say ok, that is the finding, not a disappointment.
+  The naive version is not broken. It is UNRELIABLE, which is
+  worse, because it passes the test you were going to run.
+  WEEK09_FINDINGS.md records three ways it has been seen to fail
+  silently. None of them reproduced here. Design for the failure
+  you cannot reproduce: that is what guard() is for.

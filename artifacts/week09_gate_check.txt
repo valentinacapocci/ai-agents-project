@@ -1,0 +1,2 @@
+PASS: consistent invoice skipped the gate
+PASS: failed arithmetic check reached the Week 8 gate and posting was blocked

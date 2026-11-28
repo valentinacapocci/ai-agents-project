@@ -1,0 +1,63 @@
+gold set: 58 cases, own, run 1 time(s), unattended
+
+Index built with nomic-embed-text:latest in 94.10 seconds
+Index built with nomic-embed-text:latest in 140.30 seconds
+Index built with nomic-embed-text:latest in 84.71 seconds
+Index built with nomic-embed-text:latest in 37.07 seconds
+Index built with nomic-embed-text:latest in 23.68 seconds
+Index built with nomic-embed-text:latest in 24.43 seconds
+Index built with nomic-embed-text:latest in 48.88 seconds
+Index built with nomic-embed-text:latest in 38.69 seconds
+Index built with nomic-embed-text:latest in 37.30 seconds
+Index built with nomic-embed-text:latest in 37.11 seconds
+Index built with nomic-embed-text:latest in 35.00 seconds
+Index built with nomic-embed-text:latest in 41.08 seconds
+Index built with nomic-embed-text:latest in 55.66 seconds
+Index built with nomic-embed-text:latest in 72.19 seconds
+Index built with nomic-embed-text:latest in 21.92 seconds
+Index built with nomic-embed-text:latest in 21.05 seconds
+Index built with nomic-embed-text:latest in 36.81 seconds
+Index built with nomic-embed-text:latest in 47.28 seconds
+Index built with nomic-embed-text:latest in 40.12 seconds
+Index built with nomic-embed-text:latest in 39.44 seconds
+Index built with nomic-embed-text:latest in 81.58 seconds
+Index built with nomic-embed-text:latest in 109.02 seconds
+Index built with nomic-embed-text:latest in 86.24 seconds
+Index built with nomic-embed-text:latest in 142.64 seconds
+Index built with nomic-embed-text:latest in 107.38 seconds
+Index built with nomic-embed-text:latest in 123.61 seconds
+Index built with nomic-embed-text:latest in 95.92 seconds
+Index built with nomic-embed-text:latest in 37.65 seconds
+Index built with nomic-embed-text:latest in 37.92 seconds
+Index built with nomic-embed-text:latest in 38.20 seconds
+Index built with nomic-embed-text:latest in 38.69 seconds
+Index built with nomic-embed-text:latest in 115.70 seconds
+Index built with nomic-embed-text:latest in 26.53 seconds
+Index built with nomic-embed-text:latest in 25.03 seconds
+Index built with nomic-embed-text:latest in 23.51 seconds
+Index built with nomic-embed-text:latest in 27.59 seconds
+Index built with nomic-embed-text:latest in 41.01 seconds
+Index built with nomic-embed-text:latest in 38.79 seconds
+Index built with nomic-embed-text:latest in 38.70 seconds
+Index built with nomic-embed-text:latest in 41.60 seconds
+Index built with nomic-embed-text:latest in 70.58 seconds
+Index built with nomic-embed-text:latest in 64.94 seconds
+Index built with nomic-embed-text:latest in 44.72 seconds
+Index built with nomic-embed-text:latest in 38.33 seconds
+Index built with nomic-embed-text:latest in 38.80 seconds
+Index built with nomic-embed-text:latest in 36.09 seconds
+Index built with nomic-embed-text:latest in 39.20 seconds
+Index built with nomic-embed-text:latest in 88.09 seconds
+Index built with nomic-embed-text:latest in 33.11 seconds
+Index built with nomic-embed-text:latest in 43.66 seconds
+Index built with nomic-embed-text:latest in 23.05 seconds
+Index built with nomic-embed-text:latest in 59.75 seconds
+Index built with nomic-embed-text:latest in 22.70 seconds
+Index built with nomic-embed-text:latest in 23.90 seconds
+Index built with nomic-embed-text:latest in 23.58 seconds
+Index built with nomic-embed-text:latest in 23.00 seconds
+Index built with nomic-embed-text:latest in 21.84 seconds
+Index built with nomic-embed-text:latest in 7.98 seconds
+blocked 29  ok 29
+stubs: vision, checks
+58 traces appended to artifacts/traces.jsonl

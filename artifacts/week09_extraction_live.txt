@@ -1,0 +1,12 @@
+doc        total read      truth     outcome      s  first check that fired
+----------------------------------------------------------------------------------------
+INV-001       1498.54    1498.54     correct   56.1  
+INV-002         851.0      851.0     correct  153.8  
+INV-003       1129.23    1129.23     correct  153.2  
+INV-004       2446.94    2446.94     correct  166.2  
+INV-005        823.68     823.68     correct  192.9  
+
+  correct 5, WRONG 0, caught 0, refused 0, false alarms 0  (of 5)
+  WRONG is the count of extractions that were incorrect and that
+  every check accepted. Those are the ones a human would have had
+  to open the image to find, and nobody opens ten thousand images.

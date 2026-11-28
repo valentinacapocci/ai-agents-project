@@ -1,0 +1,31 @@
+Photographed invoice sweep | model: qwen3-vl:4b | INV-006.png
+
+Running clean...
+  identity: Vision request failed: timed out
+  amounts: Vision request failed: timed out
+  refused | amounts: {'net': None, 'vat': None, 'total': None} | checks: ['arithmetic: missing or invalid amount', 'format: invalid invoice number, purchase order, or currency']
+
+Running scale=0.6...
+  identity: Vision request failed: timed out
+  amounts: Vision request failed: timed out
+  refused | amounts: {'net': None, 'vat': None, 'total': None} | checks: ['arithmetic: missing or invalid amount', 'format: invalid invoice number, purchase order, or currency']
+
+Running scale=0.4...
+  identity: Vision request failed: timed out
+  amounts: Vision request failed: timed out
+  refused | amounts: {'net': None, 'vat': None, 'total': None} | checks: ['arithmetic: missing or invalid amount', 'format: invalid invoice number, purchase order, or currency']
+
+Running scale=0.4+jpeg=20...
+  identity: Vision request failed: timed out
+  amounts: Vision request failed: timed out
+  refused | amounts: {'net': None, 'vat': None, 'total': None} | checks: ['arithmetic: missing or invalid amount', 'format: invalid invoice number, purchase order, or currency']
+
+Running scale=0.4+blur=1.0...
+  identity: Vision request failed: timed out
+  amounts: Vision request failed: timed out
+  refused | amounts: {'net': None, 'vat': None, 'total': None} | checks: ['arithmetic: missing or invalid amount', 'format: invalid invoice number, purchase order, or currency']
+
+Running scale=0.4+rotate=4...
+  identity: Vision request failed: timed out
+  amounts: Vision request failed: timed out
+  refused | amounts: {'net': None, 'vat': None, 'total': None} | checks: ['arithmetic: missing or invalid amount', 'format: invalid invoice number, purchase order, or currency']
